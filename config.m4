@@ -13,9 +13,9 @@ dnl [  --with-hylog             Include hylog support])
 
 dnl Otherwise use enable:
 
-dnl PHP_ARG_ENABLE(hylog, whether to enable hylog support,
+ PHP_ARG_ENABLE(hylog, whether to enable hylog support,
 dnl Make sure that the comment is aligned:
-dnl [  --enable-hylog           Enable hylog support])
+ [  --enable-hylog           Enable hylog support])
 
 if test "$PHP_HYLOG" != "no"; then
   dnl Write more examples of tests here...

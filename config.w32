@@ -5,7 +5,7 @@
 // ARG_WITH("hylog", "for hylog support", "no");
 
 // Otherwise, use ARG_ENABLE
-// ARG_ENABLE("hylog", "enable hylog support", "no");
+ ARG_ENABLE("hylog", "enable hylog support", "no");
 
 if (PHP_HYLOG != "no") {
 	EXTENSION("hylog", "hylog.c", PHP_EXTNAME_SHARED, "/DZEND_ENABLE_STATIC_TSRMLS_CACHE=1");
