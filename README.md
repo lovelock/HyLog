@@ -25,7 +25,17 @@ HyLog is a flexible and high performance PHP extension for logging, which is com
     make && sudo make install
     ```
 
-3. Restart PHP-FPM to load the extension.
+3. Add lines to `php.ini`.
+
+    ```
+    extension=hylog.so
+    ```
+
+4. Restart PHP-FPM to load the extension.
+
+    ```
+    sudo systemctl restart php-fpm
+    ```
 
 ## Configuration
 
