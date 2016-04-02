@@ -24,7 +24,14 @@
 extern zend_module_entry hylog_module_entry;
 #define phpext_hylog_ptr &hylog_module_entry
 
-#define PHP_HYLOG_VERSION "0.1.0" /* Replace with version number for your extension */
+#define PHP_HYLOG_VERSION "0.1.0"
+
+#ifdef HYLOG_DEBUG
+#undef HYLOG_DEBUG
+#define HYLOG_DEBUG(m) fprintf(stderr, "%s\n", m);
+#else
+#define HYLOG_DEBUG(m)
+#endif
 
 #ifdef PHP_WIN32
 #	define PHP_HYLOG_API __declspec(dllexport)
@@ -38,21 +45,39 @@ extern zend_module_entry hylog_module_entry;
 #include "TSRM.h"
 #endif
 
-/*
-  	Declare any global variables you may need between the BEGIN
-	and END macros here:
-
 ZEND_BEGIN_MODULE_GLOBALS(hylog)
-	zend_long  global_value;
-	char *global_string;
+	char *default_base_path;
+	char *default_logger;
+	char *default_datetime_format;
+	char *base_path;
+	char *logger;
+	char *datetime_format;
+	zend_bool slicing_type;
+	zend_bool slice_by_hour;
+	zend_bool use_buffer;
+	int buffer_size;
+	int level;
+	int trace_error;
+	int trace_exception;
 ZEND_END_MODULE_GLOBALS(hylog)
-*/
 
-/* Always refer to the globals in your function as HYLOG_G(variable).
-   You are encouraged to rename these macros something shorter, see
-   examples in any other php module directory.
-*/
 #define HYLOG_G(v) ZEND_MODULE_GLOBALS_ACCESSOR(hylog, v)
+
+PHP_MINIT_FUNCTION(hylog);
+PHP_MSHUTDOWN_FUNCTION(hylog);
+#ifndef ZTS
+PHP_RINIT_FUNCTION(hylog);
+#endif
+PHP_MINFO_FUNCTION(hylog);
+PHP_GINIT_FUNCTION(hylog);
+
+extern ZEND_DECLARE_MODULE_GLOBALS(hylog);
+
+BEGIN_EXTERN_C()
+	PHP_HYLOG_API zval *php_hylog_getBasePath(zend_string *name);
+	PHP_HYLOG_API int php_hylog_setBasePath(zend_string *name, zend_string *path);
+END_EXTERN_C()
+
 
 #if defined(ZTS) && defined(COMPILE_DL_HYLOG)
 ZEND_TSRMLS_CACHE_EXTERN()

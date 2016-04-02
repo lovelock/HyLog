@@ -1,8 +1,9 @@
-## About HyLog
+## Hylog - A HYgh Performance Logger for PHP as an Extension
 
-HyLog stands for High Performance PHP log.
+A flexible and high performance PHP extension for logging, which is compatible with [PSR-3](http://www.php-fig.org/psr/psr-3/). 
 
-HyLog is a flexible and high performance PHP extension for logging, which is compatible with [PSR-3](http://www.php-fig.org/psr/psr-3/). 
+## Requirements
+- PHP 7+
 
 ## Features
 

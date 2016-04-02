@@ -12,7 +12,7 @@
   | obtain it through the world-wide-web, please send a note to          |
   | license@php.net so we can mail you a copy immediately.               |
   +----------------------------------------------------------------------+
-  | Author:                                                              |
+  | Author: Qingchun.Wang  <frostwong@gmail.com>                         |
   +----------------------------------------------------------------------+
 */
 
@@ -27,21 +27,25 @@
 #include "ext/standard/info.h"
 #include "php_hylog.h"
 
-/* If you declare any globals in php_hylog.h uncomment this:
-ZEND_DECLARE_MODULE_GLOBALS(hylog)
-*/
+ZEND_DECLARE_MODULE_GLOBALS(hylog);
 
+zend_class_entry *hylog_ce;
+
+ZEND_BEGIN_ARG_INFO_EX(php_hylog_get_version_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(php_hylog_get_author_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0)
+ZEND_END_ARG_INFO()
 /* True global resources - no need for thread safety here */
-static int le_hylog;
 
 /* {{{ PHP_INI
  */
-/* Remove comments and fill if you need to have entries in php.ini
 PHP_INI_BEGIN()
     STD_PHP_INI_ENTRY("hylog.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_hylog_globals, hylog_globals)
     STD_PHP_INI_ENTRY("hylog.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_hylog_globals, hylog_globals)
 PHP_INI_END()
-*/
 /* }}} */
 
 /* Remove the following function when you have successfully modified config.m4
@@ -75,22 +79,24 @@ PHP_FUNCTION(confirm_hylog_compiled)
 
 /* {{{ php_hylog_init_globals
  */
-/* Uncomment this function if you have INI entries
 static void php_hylog_init_globals(zend_hylog_globals *hylog_globals)
 {
 	hylog_globals->global_value = 0;
 	hylog_globals->global_string = NULL;
 }
-*/
 /* }}} */
 
-/* {{{ PHP_MINIT_FUNCTION
- */
+zend_function_entry hylog_methods[] = {
+	PHP_ME(hylog, getVersion, php_hylog_get_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+	PHP_ME(hylog, getAuthor, php_hylog_get)
+};
 PHP_MINIT_FUNCTION(hylog)
 {
-	/* If you have INI entries, uncomment these lines
+	zend_class_entry ce;
+
 	REGISTER_INI_ENTRIES();
-	*/
+
+	INIT_CLASS_ENTRY(ce, "Hylog", hylog_methods);
 	return SUCCESS;
 }
 /* }}} */
@@ -132,12 +138,11 @@ PHP_RSHUTDOWN_FUNCTION(hylog)
 PHP_MINFO_FUNCTION(hylog)
 {
 	php_info_print_table_start();
-	php_info_print_table_header(2, "hylog support", "enabled");
+	php_info_print_table_row(2, "hylog support", "enabled");
+	php_info_print_table_row(2, "version", PHP_HYLOG_VERSION);
 	php_info_print_table_end();
 
-	/* Remove comments if you have entries in php.ini
 	DISPLAY_INI_ENTRIES();
-	*/
 }
 /* }}} */
 
