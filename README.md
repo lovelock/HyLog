@@ -13,6 +13,18 @@ HyLog is a flexible and high performance PHP extension for logging, which is com
 
 ## Installation
 
+1. Retrieve the latest source code of the extension.
+
+    git clone git@github.com:lovelock/HyLog.git
+
+2. Compile the source code.
+
+    cd HyLog
+    phpize
+    make && sudo make install
+
+3. Restart PHP-FPM to load the extension.
+
 ## Configuration
 
 ## Methods
