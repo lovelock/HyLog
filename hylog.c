@@ -31,20 +31,28 @@ ZEND_DECLARE_MODULE_GLOBALS(hylog);
 
 zend_class_entry *hylog_ce;
 
-ZEND_BEGIN_ARG_INFO_EX(php_hylog_get_version_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0)
+ZEND_BEGIN_ARG_INFO_EX(arginfo_void, 0, 0, 0)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(php_hylog_get_author_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0)
-ZEND_END_ARG_INFO()
+PHP_METHOD(Hylog, getBasePath)
+{
+	char *str;
+	int len;
+
+	len = spprintf(&str, 0, "%s", HYLOG_G(default_base_path));
+
+	if (zend_parse_parameters_none() == FAILURE)
+		return;
+
+	RETURN_STRINGL(str, len);
+}
+
 /* True global resources - no need for thread safety here */
 
 /* {{{ PHP_INI
  */
 PHP_INI_BEGIN()
-    STD_PHP_INI_ENTRY("hylog.global_value",      "42", PHP_INI_ALL, OnUpdateLong, global_value, zend_hylog_globals, hylog_globals)
-    STD_PHP_INI_ENTRY("hylog.global_string", "foobar", PHP_INI_ALL, OnUpdateString, global_string, zend_hylog_globals, hylog_globals)
+    STD_PHP_INI_ENTRY("hylog.default_base_path", "/var/logs", PHP_INI_ALL, OnUpdateString, default_base_path, zend_hylog_globals, hylog_globals)
 PHP_INI_END()
 /* }}} */
 
@@ -81,15 +89,12 @@ PHP_FUNCTION(confirm_hylog_compiled)
  */
 static void php_hylog_init_globals(zend_hylog_globals *hylog_globals)
 {
-	hylog_globals->global_value = 0;
-	hylog_globals->global_string = NULL;
 }
 /* }}} */
 
 zend_function_entry hylog_methods[] = {
-	PHP_ME(hylog, getVersion, php_hylog_get_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-	PHP_ME(hylog, getAuthor, php_hylog_get)
 };
+
 PHP_MINIT_FUNCTION(hylog)
 {
 	zend_class_entry ce;
@@ -152,6 +157,7 @@ PHP_MINFO_FUNCTION(hylog)
  */
 const zend_function_entry hylog_functions[] = {
 	PHP_FE(confirm_hylog_compiled,	NULL)		/* For testing, remove later. */
+	PHP_ME(Hylog, getBasePath, arginfo_void, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_FE_END	/* Must be the last line in hylog_functions[] */
 };
 /* }}} */
