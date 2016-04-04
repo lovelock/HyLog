@@ -74,8 +74,6 @@ PHP_GINIT_FUNCTION(hylog);
 extern ZEND_DECLARE_MODULE_GLOBALS(hylog);
 
 BEGIN_EXTERN_C()
-	PHP_HYLOG_API zval *php_hylog_getBasePath(zend_string *name);
-	PHP_HYLOG_API int php_hylog_setBasePath(zend_string *name, zend_string *path);
 END_EXTERN_C()
 
 

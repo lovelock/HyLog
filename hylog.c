@@ -28,23 +28,165 @@
 #include "php_hylog.h"
 
 ZEND_DECLARE_MODULE_GLOBALS(hylog);
+static char *base_path;
 
 zend_class_entry *hylog_ce;
 
+/* {{{ ARG_INFO
+ */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_void, 0, 0, 0)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(set_base_path_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0, basePath)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(log_arginfo, 0, 0, 3)
+	ZEND_ARG_INFO(0, level)
+	ZEND_ARG_INFO(0, message)
+	ZEND_ARG_INFO(0, context)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(concret_log_arginfo, 0, 0, 2)
+	ZEND_ARG_INFO(0, message)
+	ZEND_ARG_INFO(0, context)
+ZEND_END_ARG_INFO()
+/* }}} */
+
+PHP_METHOD(Hylog, __construct)
+{
+	if (zend_parse_parameters_none() == FAILURE) {
+		return;
+	}
+
+	HYLOG_G(base_path) = estrndup(HYLOG_G(default_base_path), strlen(HYLOG_G(default_base_path)));
+}
+
+PHP_METHOD(Hylog, log)
+{
+	char *_level;
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssa", &_level, &_message, &_context) == FAILURE) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, emergency)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, critical)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, alert)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, error)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, warning)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, notice)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, info)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
+
+PHP_METHOD(Hylog, debug)
+{
+	char *_message;
+	HashTable *_context;
+
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+		return;
+	}
+}
 
 PHP_METHOD(Hylog, getBasePath)
 {
 	char *str;
 	int len;
 
-	len = spprintf(&str, 0, "%s", HYLOG_G(default_base_path));
+	len = spprintf(&str, 0, "%s", HYLOG_G(base_path));
 
 	if (zend_parse_parameters_none() == FAILURE)
 		return;
 
 	RETURN_STRINGL(str, len);
+}
+
+PHP_METHOD(Hylog, setBasePath)
+{
+	zval *_base_path;
+	int argc = ZEND_NUM_ARGS();
+
+	if (zend_parse_parameters(argc TSRMLS_CC, "z", &_base_path) == FAILURE) {
+		return;
+	}
+
+	if (argc > 0 && (Z_TYPE_P(_base_path) == IS_STRING ||  Z_STRLEN_P(_base_path) > 0)) {
+		if (!HYLOG_G(base_path) || !strcmp(HYLOG_G(base_path), HYLOG_G(default_base_path))) {
+			efree(HYLOG_G(base_path));
+		}
+
+		HYLOG_G(base_path) = estrndup(Z_STRVAL_P(_base_path), Z_STRLEN_P(_base_path));
+
+		zval_ptr_dtor(_base_path);
+		RETURN_TRUE;
+	}
+
+	RETURN_FALSE;
 }
 
 /* True global resources - no need for thread safety here */
@@ -93,6 +235,19 @@ static void php_hylog_init_globals(zend_hylog_globals *hylog_globals)
 /* }}} */
 
 zend_function_entry hylog_methods[] = {
+	PHP_ME(Hylog, __construct, arginfo_void,          ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, getBasePath, arginfo_void,          ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, setBasePath, set_base_path_arginfo, ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, log,         log_arginfo,           ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, emergency,   concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, alert,       concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, critical,    concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, error,       concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, warning,     concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, notice,      concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, info,        concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, debug,       concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_FE_END
 };
 
 PHP_MINIT_FUNCTION(hylog)
@@ -102,6 +257,9 @@ PHP_MINIT_FUNCTION(hylog)
 	REGISTER_INI_ENTRIES();
 
 	INIT_CLASS_ENTRY(ce, "Hylog", hylog_methods);
+
+	hylog_ce = zend_register_internal_class(&ce TSRMLS_CC);
+
 	return SUCCESS;
 }
 /* }}} */
@@ -157,7 +315,6 @@ PHP_MINFO_FUNCTION(hylog)
  */
 const zend_function_entry hylog_functions[] = {
 	PHP_FE(confirm_hylog_compiled,	NULL)		/* For testing, remove later. */
-	PHP_ME(Hylog, getBasePath, arginfo_void, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
 	PHP_FE_END	/* Must be the last line in hylog_functions[] */
 };
 /* }}} */
@@ -166,7 +323,7 @@ const zend_function_entry hylog_functions[] = {
  */
 zend_module_entry hylog_module_entry = {
 	STANDARD_MODULE_HEADER,
-	"hylog",
+	"Hylog",
 	hylog_functions,
 	PHP_MINIT(hylog),
 	PHP_MSHUTDOWN(hylog),
