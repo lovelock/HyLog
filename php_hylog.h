@@ -44,6 +44,7 @@ extern zend_module_entry hylog_module_entry;
 #ifdef ZTS
 #include "TSRM.h"
 #endif
+#include <ext/standard/basic_functions.h>
 
 ZEND_BEGIN_MODULE_GLOBALS(hylog)
 	char *default_base_path;
@@ -80,6 +81,7 @@ END_EXTERN_C()
 #if defined(ZTS) && defined(COMPILE_DL_HYLOG)
 ZEND_TSRMLS_CACHE_EXTERN()
 #endif
+
 
 #endif	/* PHP_HYLOG_H */
 

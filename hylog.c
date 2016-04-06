@@ -32,6 +32,11 @@ static char *base_path;
 
 zend_class_entry *hylog_ce;
 
+#define REGISTER_HYLOG_CLASS_CONSTANT_STRING(const_name, value) \
+		zend_declare_class_constant_stringl(hylog_ce, const_name, sizeof(const_name) - 1, value, sizeof(value) - 1)
+#define REGISTER_HYLOG_CLASS_PRIVATE_PROPERTY_STRING(property_name, value) \
+		zend_declare_property_stringl(hylog_ce, property_name, sizeof(property_name) - 1, value, sizeof(value) - 1, ZEND_ACC_PRIVATE TSRMLS_CC)
+
 /* {{{ ARG_INFO
  */
 ZEND_BEGIN_ARG_INFO_EX(arginfo_void, 0, 0, 0)
@@ -51,6 +56,13 @@ ZEND_BEGIN_ARG_INFO_EX(concret_log_arginfo, 0, 0, 2)
 	ZEND_ARG_INFO(0, message)
 	ZEND_ARG_INFO(0, context)
 ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(real_log_arginfo, 0, 0, 1)
+	ZEND_ARG_INFO(0, message)
+	ZEND_ARG_INFO(0, message_type)
+	ZEND_ARG_INFO(0, destination)
+	ZEND_ARG_INFO(0, extra_headers)
+ZEND_END_ARG_INFO()
 /* }}} */
 
 PHP_METHOD(Hylog, __construct)
@@ -64,93 +76,125 @@ PHP_METHOD(Hylog, __construct)
 
 PHP_METHOD(Hylog, log)
 {
-	char *_level;
-	char *_message;
-	HashTable *_context;
+	char *level, *message;
+	size_t level_len, message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssa", &_level, &_message, &_context) == FAILURE) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "ssa", &level, &level_len, &message, &message_len, &context) == FAILURE) {
 		return;
 	}
+
 }
 
 PHP_METHOD(Hylog, emergency)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, critical)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, alert)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, error)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, warning)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, notice)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, info)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
 }
 
 PHP_METHOD(Hylog, debug)
 {
-	char *_message;
-	HashTable *_context;
+	char *message;
+	size_t message_len;
+	HashTable *context;
 
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &_message, &_context)) {
+	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sa", &message, &message_len, &context)) {
 		return;
 	}
+}
+
+PHP_METHOD(Hylog, realLog)
+{
+	char *message, *opt = NULL, *headers = NULL;
+	size_t message_len, opt_len = 0, headers_len = 0;
+	int opt_err = 0, argc = ZEND_NUM_ARGS();
+	zend_long erropt = 0;
+
+	if (zend_parse_parameters(argc TSRMLS_CC, "s|lps", &message, &message_len, &erropt, &opt, &opt_len, \
+				&headers, &headers_len) == FAILURE) {
+		return;
+	}
+
+	if (argc > 1) {
+		opt_err = (int)erropt;
+	}
+
+	if (_php_error_log_ex(opt_err, message, message_len, opt, headers) == FAILURE) {
+		RETURN_FALSE;
+	}
+
+	RETURN_TRUE;
 }
 
 PHP_METHOD(Hylog, getBasePath)
@@ -247,6 +291,7 @@ zend_function_entry hylog_methods[] = {
 	PHP_ME(Hylog, notice,      concret_log_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(Hylog, info,        concret_log_arginfo,   ZEND_ACC_PUBLIC)
 	PHP_ME(Hylog, debug,       concret_log_arginfo,   ZEND_ACC_PUBLIC)
+	PHP_ME(Hylog, realLog,     real_log_arginfo,      ZEND_ACC_PUBLIC)
 	PHP_FE_END
 };
 
@@ -259,6 +304,18 @@ PHP_MINIT_FUNCTION(hylog)
 	INIT_CLASS_ENTRY(ce, "Hylog", hylog_methods);
 
 	hylog_ce = zend_register_internal_class(&ce TSRMLS_CC);
+
+	REGISTER_HYLOG_CLASS_PRIVATE_PROPERTY_STRING("_basePath", "");
+	REGISTER_HYLOG_CLASS_PRIVATE_PROPERTY_STRING("_sliceByHour", "");
+
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("EMERGENCY", "EMERGENCY");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("ALERT",     "ALERT");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("CRITICAL",  "CRITICAL");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("ERROR",     "ERROR");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("WARNING",   "WARNING");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("NOTICE",    "NOTICE");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("INFO",      "INFO");
+	REGISTER_HYLOG_CLASS_CONSTANT_STRING("DEBUG",     "DEBUG");
 
 	return SUCCESS;
 }
