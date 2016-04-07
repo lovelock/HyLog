@@ -84,6 +84,8 @@ PHP_METHOD(Hylog, log)
 		return;
 	}
 
+
+
 }
 
 PHP_METHOD(Hylog, emergency)
